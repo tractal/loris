@@ -1,0 +1,298 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+        "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+	<title>Loris Utility Programs</title>
+
+<!--
+	<link href="stylepersistant.css" type="text/css" rel="stylesheet" />
+	<link href="lorisStyle.css" type="text/css" rel="stylesheet" /> 
+
+	<style type="text/css">
+	/* <![CDATA[ */
+	div.container {
+		padding: 0px 10px 10px 150px;
+		background-image: url(images/spec.png);
+	 }
+	/* ]]> */
+	</style>
+-->
+
+	<meta name="generator" content="BBEdit 7.1.1" />
+</head>
+
+<body>
+
+<div class="container">
+<div class="content">
+
+<h1>Loris Utility Programs</h1>
+
+<!--
+<p class="none">
+Note: your browser is not CSS compliant, so it may format this page incorrectly.
+</p>
+-->
+
+
+<h2><a id="analyze"><code>loris-analyze</code></a></h2>
+
+<p>
+A utility program to perform Loris analysis
+of a sampled sound (read from an AIFF file or from standard input),
+and store the Partials in a SDIF file.
+</p>
+
+<pre>
+loris-analyze resolution 
+              [windowWidth] 
+              [infilename.aiff] 
+              [options] 
+</pre>
+
+<p>
+Frequency resolution (minimum frequency separation between 
+partials) is specified in Hz.
+</p>
+
+<p>
+If the window width (symmetric main lobe of frequency spectrum,
+measured in Hz) is not specified, twice the resolution is used.
+</p>
+
+<p>
+If no input filename is specified, samples are read from standard
+input, and the sample rate must be specified using the -rate flag.
+</p>
+
+<h4>options</h4>
+
+<p>
+<code>-o,-out,-ofile,-outfile</code> : set the name of the output (SDIF) file.
+	Requires a file name.
+</p>
+
+<p>
+<code>-render,-synth</code> : render the Partials to a new (AIFF) samples file.
+	Optionally specify the name of the file, otherwise test.aiff
+	is used.
+</p>
+
+<p>
+<code>-collate</code> : collate the Partials to reduce their number without 	
+	assuming any harmonic structure (cannot distill later!).
+</p>
+
+<p>
+<code>-distill,-dist</code> : distill the Partials assuming a harmonic structure
+	with the specified approximate fundamental frequency. Requires 
+	a positive numeric parameter.
+</p>
+
+<p>
+<code>-resample,-resamp</code> : resample the Partials at a regular interval
+	(in seconds). Requires a positive numeric parameter.
+</p>
+
+<p>
+<code>-hop,-hoptime</code> : set the hop time paremeter for the Analyzer.
+	Requires a positive numeric parameter. Default is the 
+	inverse of the analysis window width.
+</p>
+
+<p>
+<code>-crop,-croptime</code> : set the cropping time parameter for the Analyzer.
+	Requires a positive numeric parameter. Default is the 
+	inverse of the analysis window width.
+</p>
+
+<p>
+<code>-bw,-bwregionwidth</code> : set the bandwidth association region width 
+	parameter for the Analyzer. Requires a non-negative numeric 
+	parameter, 0 indicates disable bandwidth association. 
+	Default is 2&nbsp;kHz.
+</p>
+	
+<p>
+<code>-drift,-freqdrift</code> : set the frequency drift parameter for the 
+	Analyzer. Requires a positive numeric parameter.
+	Default is half the frequency resolution.
+</p>
+
+<p>
+<code>-ampfloor</code> : set the amplitude floor parameter for the Analyzer.
+	Requires a NEGATIVE numeric parameter, relative to 0 dB full 
+	amplitude sine wave. Default is -90&nbsp;dB.
+</p>
+
+<p>
+<code>-freqfloor</code> : set the frequency floor parameter for the Analyzer.
+	Requires a positive numeric parameter.
+</p>
+
+<p>
+<code>-sidelobes,-attenuation,-sidelobelevel</code> : set the sidelobe attenuation
+	(in positive dB) for the analysis window used by the Analyzer 
+	(default is 90&nbsp;dB). Requires a positive numeric parameter.
+</p>
+	
+<p>
+<code>-rate,-samplerate,-sr</code> : set the sample rate for the test render
+	(no effect if not used with <code>-render</code> or <code>-synth</code>, default rate
+	is same as input file). Also sets the sample rate for samples
+	read from standard input (default is 44.1&nbsp;kHz). Requires a 
+	positive numeric parameter.
+</p>
+	
+<p>
+<code>-resolution,-res,-freqres,-freqresolution</code> : set the frequency 
+	resolution parameter for the Analyzer (after configuring 
+	other parameters). Requires a positive numeric parameter.
+</p>
+	
+<p>
+<code>-width,--winwidth,-windwowidth</code> : set the main lobe width of the 
+	the analysis window used by the Analyzer (default is twice 
+	the frequency resolution). Requires a positive numeric parameter.
+</p>
+	
+<p>
+<code>-v,-verbose</code> : print lots of information before analyzing
+</p>
+
+
+<h2><code>loris-synthesize</code></h2>
+
+<p>
+Utility program to render Partials
+stored in a SDIF file, optionally with dilation and amplitude
+and frequency scaling by a constant factor.
+</p>
+
+<pre>
+loris-synthesize filename.sdif [options] [times] 
+</pre>
+
+
+<h3>options</h3>
+
+<p>
+<code>-rate</code> sample rate in Hz
+</p>
+
+<p>
+<code>-freq</code> frequency scale factor
+</p>
+
+<p>
+<code>-amp</code> amplitude scale factor
+</p>
+
+<p>
+<code>-o</code> output AIFF file name, default is <code>synth.aiff</code>
+</p>
+
+<p>
+Optional times (any number) are used for dilation.
+If times are specified, they must all correspond to 
+Markers in the SDIF file. If only a single time is
+specified, and the SDIF file has no Markers or more
+than one, the specified time is used as the overall duration
+of the uniformly-dilated synthesis.
+</p>
+
+<h2><code>loris-dilate</code></h2>
+
+<pre>
+loris-dilate filename.sdif [options] times 
+</pre>
+
+<p>
+Utility program to dilate Partials
+stored in a SDIF file, optionally with amplitude
+and frequency scaling by a constant factor.
+</p>
+
+<h3>options</h3>
+
+<p>
+<code>-freq</code> frequency scale factor
+</p>
+
+<p>
+<code>-amp</code> amplitude scale factor
+</p>
+
+<p>
+<code>-o</code> output SDIF file name, default is <code>dilated.sdif</code>
+</p>
+
+<p>
+Times (any non-zero number) are used for dilation.
+The specified times must all correspond to 
+Markers in the SDIF file. If only a single time is
+specified, and the SDIF file has no Markers or more
+than one, the specified time is used as the overall 
+duration of the uniformly-dilated partials.
+</p>
+
+
+<h2><code>loris-mark</code></h2>
+
+<p>
+Utility program to add a
+marker to a AIFF, SPC, or SDIF file.
+</p>
+
+<pre>
+loris-mark filename marker_time marker_name 
+</pre>
+ 
+<h2><code>loris-unmark</code></h2>
+
+<p>
+Utility program to remove a marker or markers from a AIFF, SPC, or SDIF file.
+</p>
+
+<pre>
+loris-unmark filename marker_name 
+</pre>
+
+
+<h2><code>loris-spewmarkers</code></h2>
+
+<p>
+Utility program to read the
+markers stored in a AIFF, SPC, or SDIF file and
+print them to standard output.
+</p>
+
+<pre>
+loris-spewmarkers filename 
+</pre>
+
+
+ 
+</div>
+</div>    
+<div>
+<p>
+<a href="http://validator.w3.org/check/referer">
+<img
+  src="http://www.w3.org/Icons/valid-xhtml11"
+  alt="Valid XHTML 1.1!" height="31" width="88" />
+</a>
+<small>This page is valid XHTML 1.1.</small>
+</p>
+</div>
+
+<div>
+<p>
+<small>Last update: 31 Mar 2005</small>
+</p>
+</div>
+
+
+</body>
+</html>

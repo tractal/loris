@@ -1,0 +1,3 @@
+This directory contains scripts and sources used for testing and
+verifying the behavior of the Loris library and Python interfaces.
+Run "make check" to run these tests.

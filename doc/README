@@ -1,0 +1,12 @@
+The Loris C++ sources are documented using Doxygen, if available.
+
+"make html" builds a HTML version of the C++ documentation.
+
+"make pdf" builds a pdf version of the C++ documentation.
+
+The Csound opcodes are documented in opcodes.html.
+
+Documentation for the Python module is available using pydoc.
+
+The procedural (C) interface is documented only in the
+header file loris.h.

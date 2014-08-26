@@ -1,0 +1,8 @@
+This directory contains a Makefile and SWIG interface files for building
+a Python interface to the Loris C++ library. The interface files may be
+used to build modules for other languages, see www.swig.org for a list
+of langauges supported by SWIG. Only Python has been tested extensively,
+and some functionality may not be available in all languages. Let us
+know (loris@cerlsoundgroup.org) if you have success (or trouble)
+building a module for another language.
+

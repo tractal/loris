@@ -1,0 +1,446 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/1999/REC-html401-19991224/loose.dtd">
+
+<html>
+<head>
+	<title>Loris Unit Generators</title>
+	 <LINK REL="stylesheet" TYPE="text/css" HREF="../manual.css" TITLE="formal">
+</head>
+
+<body bgcolor="white">
+<!--
+[[table  align="right" cellpadding="1" cellspacing="1" border="0"]]
+	[[tr]]
+		[[td width="45" align="right"]]
+			[[a href="../manual2.htm#contents" target="_parent"]][[img src="../toc.gif" width="38" height="18" alt="Use Non-Frames Version" border="0"]][[/a]]
+		[[/td]]
+		[[td width="10"]][[/td]]
+		[[td width="45" align="right"]]
+			[[a href="guiro.htm"]][[img src="../prev.gif" width="38" height="18" alt="Previous Page" border="0"]][[/a]]
+		[[/td]]
+		[[td width="45" align="right"]]
+			[[a href="pvread.htm"]][[img src="../next.gif" width="38" height="18" alt="Next Page" border="0"]][[/a]]
+		[[/td]]
+	[[/tr]]
+[[/table]]
+-->
+Signal Generators: Bandwidth-Enhanced Additive Resynthesis, Sound Morphing
+
+<hr size="1" color="#A9A9A9" noshade>
+
+<h2>lorisread, lorisplay, lorismorph</h2>
+<pre>
+      <strong>lorisread</strong>    ktimpnt, ifilcod, istoreidx, kfreqenv, kampenv, kbwenv[, ifadetime]
+  ar  <strong>lorisplay</strong>    ireadidx, kfreqenv, kampenv, kbwenv
+      <strong>lorismorph</strong>   isrcidx, itgtidx, istoreidx, kfreqmorphenv, kampmorphenv, kbwmorphenv
+</pre>
+<hr size="2" color="#A9A9A9" noshade>
+
+<h3>Description</h3>
+
+The <strong>Loris</strong> unit generators, <strong>lorisread</strong>,
+<strong>lorisplay</strong>, and <strong>lorismorph</strong>, perform
+<em>Bandwidth-Enhanced</em> additive reconstruction of a sound specified
+by a set of partials obtained from a <em>Reassigned Bandwidth-Enhanced
+Analysis</em> performed using the <strong>Loris</strong> software.
+<p>
+
+<strong>lorisread</strong> imports a set of bandwidth-enhanced partials
+from a SDIF-format data file, applying control-rate frequency,
+amplitude, and bandwidth scaling envelopes, and stores the modified
+partials in memory.
+<p>
+
+<strong>lorismorph</strong> morphs two stored sets of bandwidth-enhanced
+partials and stores a new set of partials representing the morphed
+sound. The morph is performed by linearly interpolating the parameter
+envelopes (frequency, amplitude, and bandwidth, or noisiness) of the
+bandwidth-enhanced partials according to control-rate
+frequency, amplitude, and bandwidth morphing functions.
+<p>
+
+<strong>lorisplay</strong> renders a stored set of bandwidth-enhanced
+partials using the method of <em>Bandwidth-Enhanced Additive
+Synthesis</em> implemented in the <strong>Loris</strong> software,
+applying control-rate frequency, amplitude, and bandwidth scaling
+envelopes.
+
+
+<p>
+For more information about sound morphing and manipulation using
+<strong>Loris</strong> and the <em>Reassigned Bandwidth-Enhanced
+Additive Model</em>, visit the <strong>Loris</strong> web site at <a
+href="www.cerlsoundgroup.org/Loris/">www.cerlsoundgroup.org/Loris/</a>
+
+
+<h3>Initialization</h3>
+
+<p><em>ifilcod</em> &#8211; integer or character-string denoting a
+control-file derived from reassigned bandwidth-enhanced analysis of an
+audio signal. An integer denotes the suffix of a file
+<em>loris.sdif</em> (e.g. <em>loris.sdif.1</em>); a character-string (in
+double quotes) gives a filename, optionally a full pathname. If not
+fullpath, the file is sought first in the current directory, then in the
+one given by the environment variable <strong>SADIR</strong> (if defined).
+The reassigned bandwidth-enhanced data file contains breakpoint
+frequency, amplitude, noisiness, and phase envelope values organized for
+bandwidth-enhanced additive resynthesis. The control data must conform
+to one of the SDIF formats that can be interpreted using the
+<strong>Loris</strong> library for sound modeling and manipulation.
+Memory usage depends on the size of the files involved, which are read
+and held entirely in memory during computation but are shared by
+multiple calls. 
+</p>
+
+<p> <strong>Loris</strong> stores partials in SDIF RBEP frames. Each
+RBEP frame contains one RBEP matrix, and each row in a RBEP matrix
+describes one breakpoint in a <strong>Loris</strong> partial. A RBEL
+frame containing one RBEL matrix describing the labeling of the partials
+may precede the first RBEP frame in the SDIF file. The RBEP and RBEL
+frame and matrix definitions are included in the SDIF file's header. In
+addition to RBEP frames, <strong>Loris</strong> can also read and write
+SDIF 1TRC frames.  Since 1TRC frames do not represent
+bandwidth-enhancement or the exact timing of <strong>Loris</strong>
+breakpoints, their use is not recommended. 1TRC capabilities are
+provided to allow interchange with programs that are unable to handle
+RBEP frames.
+</p>
+
+<p> <em>istoreidx</em>, <em>ireadidx</em>, <em>isrcidx</em>,
+<em>itgtidx</em> are labels that identify a stored set of
+bandwidth-enhanced partials. <strong>lorisread</strong> imports partials
+from a SDIF file and stores them with the integer label
+<em>istoreidx</em>. <strong>lorismorph</strong> morphs sets of partials
+labeled <em>isrcidx</em> and <em>itgtidx</em>, and stores the resulting
+partials with the integer label <em>istoreidx</em>.
+<strong>lorisplay</strong> renders the partials stored with the label
+<em>ireadidx</em>. The labels are used only at initialization time, and
+may be reused without any cost or benefit in efficiency, and without
+introducing any interaction between instruments or instances. 
+</p>
+
+
+<p><em>ifadetime</em> (optional) &#8211; In general, partials exported
+from <strong>Loris</strong> begin and end at non-zero amplitude. In
+order to prevent artifacts, it is very often necessary to fade the
+partials in and out, instead of turning them abruptly on and off.
+Specification of a non-zero <em>ifadetime</em> causes partials to fade
+in at their onsets and to fade out at their terminations. This is
+achieved by adding two more breakpoints to each partial: one
+<em>ifadetime</em> seconds before the start time and another
+<em>ifadetime</em> seconds after the end time. (However, no breakpoint
+will be introduced at a time less than zero. If necessary, the onset
+fade time will be shortened.) The additional breakpoints at the partial
+onset and termination will have the same frequency and bandwidth as the
+first and last breakpoints in the partial, respectively, but their
+amplitudes will be zero. The phase of the new breakpoints will be
+extrapolated to preserve phase correctness. If no value is specified,
+<em>ifadetime</em> defaults to zero. Note that the fadetime may not be
+exact, since the partial parameter envelopes are sampled at the control
+rate (krate) and indexed by <em>ktimpnt</em> (see below), and not by
+real time. 
+</p>
+
+
+<h3>Performance</h3>
+
+<strong>lorisread</strong> reads pre-computed <em>Reassigned
+Bandwidth-Enhanced</em> analysis data from a file stored in SDIF format,
+as described above. The passage of time through this file is specified
+by <em>ktimpnt</em>, which represents the time in seconds.
+<em>ktimpnt</em> must always be positive, but can move forwards or
+backwards in time, be stationary or discontinuous, as a pointer into the
+analysis file. <em>kfreqenv</em> is a control-rate transposition factor:
+a value of 1 incurs no transposition, 1.5 transposes up a perfect fifth,
+and .5 down an octave. <em>kampenv</em> is a control-rate scale factor
+that is applied to all partial amplitude envelopes. <em>kbwenv</em> is a
+control-rate scale factor that is applied to all partial bandwidth or
+noisiness envelopes. The bandwidth-enhanced partial data is stored in
+memory with a specified label for future access by another generator.
+</p>
+
+
+
+
+<p><strong>lorismorph</strong> generates a set of bandwidth-enhanced
+partials by morphing two stored sets of partials, the source and target
+partials, which may have been imported using <strong>lorisread</strong>,
+or generated by another unit generator, including another instance of
+<strong>lorismorph</strong>. The morph is performed by interpolating the
+parameters of corresponding (labeled) partials in the two source sounds
+(for a full explanation, visit the <strong>Loris</strong> web site at <a
+href="www.cerlsoundgroup.org/Loris/">www.cerlsoundgroup.org/Loris/</a>).
+The sound morph is described by three control-rate morphing envelopes.
+<em>kfreqmorphenv</em> describes the interpolation of partial frequency
+values in the two source sounds. When <em>kfreqmorphenv</em> is 0,
+partial frequencies are obtained from the partials stored at
+<em>isrcidx</em>. When <em>kfreqmorphenv</em> is 1, partial frequencies
+are obtained from the partials at <em>itgtidx</em>. When
+<em>kfreqmorphenv</em> is between 0 and 1, the partial frequencies are
+interpolated between corresponding source and target partials.
+Interpolation of partial amplitudes and bandwidth (noisiness)
+coefficients are similarly described by <em>kampmorphenv</em> and
+<em>kbwmorphenv</em>.
+</p>
+
+<p><strong>lorisplay</strong> implements signal reconstruction using
+Bandwidth-Enhanced Additive Synthesis. The control data is obtained from
+a stored set of bandwidth-enhanced partials imported from an SDIF file
+using <strong>lorisread</strong> or constructed by another unit
+generator such as <strong>lorismorph</strong>. <em>kfreqenv</em> is
+a control-rate transposition factor: a value of 1 incurs no
+transposition, 1.5 transposes up a perfect fifth, and .5 down an octave.
+<em>kampenv</em> is a control-rate scale factor that is applied to all
+partial amplitude envelopes. <em>kbwenv</em> is a control-rate scale
+factor that is applied to all partial bandwidth or noisiness envelopes.
+The bandwidth-enhanced partial data is stored in memory with a specified
+label for future access by another generator.
+
+
+<p>This implementation of the <strong>Loris</strong> unit generators was
+written by Kelly Fitz. It is patterned after a prototype implementation of the
+<strong>lorisplay</strong> unit generator written by Corbin
+Champion, and based on the method of
+<em>Bandwidth-Enhanced Additive Synthesis</em> and on the sound morphing
+algorithms implemented in the <strong>Loris</strong> library for sound
+modeling and manipulation. For more information about
+<em>Bandwidth-Enhanced Additive Synthesis</em>, <em>Reassigned
+Bandwidth-Enhanced Additive Model</em>, and <strong>Loris</strong>,
+visit the <strong>Loris</strong> web site at <a
+href="www.cerlsoundgroup.org/Loris/">www.cerlsoundgroup.org/Loris/</a>
+</p>
+
+
+<h3>Examples</h3>
+<p>Example 1
+</p>
+<pre><em>; 
+; Play the partials in clarinet.sdif 
+; from 0 to 3 sec with 1 ms fadetime 
+; and no frequency , amplitude, or 
+; bandwidth modification.
+;</em>
+instr 1
+    ktime    <strong>linseg</strong>      0, p3, 3.0    <em>; linear time function from 0 to 3 seconds</em>
+             <strong>lorisread</strong>   ktime, "clarinet.sdif", 1, 1, 1, 1, .001
+    asig     <strong>lorisplay</strong>   1, 1, 1, 1
+             out         asig
+endin
+
+</pre>
+
+<p>Example 2
+</p>
+<pre><em>; 
+; Play the partials in clarinet.sdif 
+; from 0 to 3 sec with 1 ms fadetime 
+; adding tuning and vibrato, increasing the 
+; "breathiness" (noisiness) and overall
+; amplitude, and adding a highpass filter.
+;</em>
+instr 2
+    ktime    <strong>linseg</strong>      0, p3, 3.0    <em>; linear time function from 0 to 3 seconds</em>
+    
+    <em>; compute frequency scale for tuning</em>
+    ; (original pitch was G#4)
+    ifscale  <strong>=</strong>           cpspch(p4)/cpspch(8.08)
+
+    <em>; make a vibrato envelope</em>
+    kvenv    <strong>linseg</strong>      0, p3/6, 0, p3/6, .02, p3/3, .02, p3/6, 0, p3/6, 0
+    kvib     <strong>oscil</strong>       kvenv, 4, 1   <em>; table 1, sinusoid</em>
+
+    kbwenv   <strong>linseg</strong>      1, p3/6, 1, p3/6, 2, 2*p3/3, 2
+             <strong>lorisread</strong>   ktime, "clarinet.sdif", 1, 1, 1, 1, .001
+    a1       <strong>lorisplay</strong>   1, ifscale+kvib, 2, kbwenv  
+    a2       <strong>atone</strong>       a1, 1000     <em> ; highpass filter, cutoff 1000 Hz</em>
+             <strong>out</strong>         a2
+endin
+
+</pre>
+<p> The instrument in Example 1 synthesizes a clarinet tone from
+beginning to end using partials derived from reassigned
+bandwidth-enhanced analysis of a three-second clarinet tone, stored in
+a file, "clarinet.sdif." The instrument in Example 2 adds tuning and
+vibrato to the clarinet tone synthesized by <code>instr 1</code>,
+boosts its amplitde and noisiness, and applies a highpass filter to
+the result. The following score can be used to test both of the
+instruments described above.
+</p>
+<pre>
+	; make sinusoid in table 1
+	f 1 0 4096 10 1
+	
+	; play instr 1
+	;     strt   dur
+	i 1    0      3
+	i 1    +      1
+	i 1    +      6
+	s
+	
+	; play instr 2
+	;     strt   dur   ptch
+	i 2     1     3    8.08
+	i 2     3.5   1    8.04
+	i 2     4     6    8.00
+	i 2     4     6    8.07
+
+    e
+</pre>
+
+<p>Morphing Example 1
+</p>
+<pre><em>;
+;
+; Morph the partials in clarinet.sdif into the
+; partials in flute.sdif over the duration of
+; the sustained portion of the two tones (from
+; .2 to 2.0 seconds in the clarinet, and from
+; .5 to 2.1 seconds in the flute). The onset
+; and decay portions in the morphed sound are
+; specified by parameters p4 and p5, respectively.
+; The morphing time is the time between the
+; onset and the decay. The clarinet partials are
+; shfited in pitch to match the pitch of the flute
+; tone (D above middle C). 
+;
+;</em>
+instr 1
+    ionset   <strong>=</strong>           p4
+    idecay   <strong>=</strong>           p5
+    itmorph  <strong>=</strong>           p3 - (ionset + idecay)
+    ipshift  <strong>=</strong>           cpspch(8.02)/cpspch(8.08)
+    
+    ktcl     <strong>linseg</strong>      0, ionset, .2, itmorph, 2.0, idecay, 2.1    <em>; clarinet time function, morph from .2 to 2.0 seconds</em>
+    ktfl     <strong>linseg</strong>      0, ionset, .5, itmorph, 2.1, idecay, 2.3    <em>; flute time function, morph from .5 to 2.1 seconds</em>
+    kmurph   <strong>linseg</strong>      0, ionset, 0, itmorph, 1, idecay, 1
+             <strong>lorisread</strong>   ktcl, "clarinet.sdif", 1, ipshift, 2, 1, .001
+             <strong>lorisread</strong>   ktfl, "flute.sdif", 2, 1, 1, 1, .001
+             <strong>lorismorph</strong>  1, 2, 3, kmurph, kmurph, kmurph
+    asig     <strong>lorisplay</strong>   3, 1, 1, 1
+             <strong>out</strong>         asig
+endin
+
+</pre>
+
+<p>Morphing Example 2
+</p>
+<pre><em>;
+; Morph the partials in trombone.sdif into the
+; partials in meow.sdif. The start and end times
+; for the morph are specified by parameters p4 
+; and p5, respectively. The morph occurs over the
+; second of four pitches in each of the sounds, 
+; from .75 to 1.2 seconds in the flutter-tongued
+; trombone tone, and from 1.7 to 2.2 seconds in 
+; the cat's meow. Different morphing functions are
+; used for the frequency and amplitude envelopes,
+; so that the partial amplitudes make a faster  
+; transition from trombone to cat than the frequencies. 
+; (The bandwidth envelopes use the same morphing 
+; function as the amplitudes.) 
+;</em>
+instr 2
+    ionset   <strong>=</strong>           p4
+    imorph   <strong>=</strong>           p5 - p4
+    irelease <strong>=</strong>           p3 - p5
+        
+    kttbn    <strong>linseg</strong>      0, ionset, .75, imorph, 1.2, irelease, 2.4
+    ktmeow   <strong>linseg</strong>      0, ionset, 1.7, imorph, 2.2, irelease, 3.4
+    
+    kmfreq   <strong>linseg</strong>      0, ionset, 0, .75*imorph, .25, .25*imorph, 1, irelease, 1
+    kmamp    <strong>linseg</strong>      0, ionset, 0, .75*imorph, .9, .25*imorph, 1, irelease, 1
+    
+             <strong>lorisread</strong>   kttbn, "trombone.sdif", 1, 1, 1, 1, .001
+             <strong>lorisread</strong>   ktmeow, "meow.sdif", 2, 1, 1, 1, .001
+             <strong>lorismorph</strong>  1, 2, 3, kmfreq, kmamp, kmamp
+    asig     <strong>lorisplay</strong>   3, 1, 1, 1
+             <strong>out</strong>         asig
+endin
+
+</pre>
+
+<p> The instrument in Morphing Example 1 performs a sound morph between a clarinet
+tone and a flute tone using reassigned bandwidth-enhanced partials stored in
+"clarinet.sdif" and "flute.sdif."
+<p>
+The morph is performed over the sustain portions of the tones, 2. seconds
+to 2.0 seconds in the case of the clarinet tone and .5 seconds to 2.1 seconds
+in the case of the flute tone. The time index functions, <code>ktcl</code> and 
+<code>ktfl</code>, align the onset and decay portions of the tones with
+the specified onset and decay times for the morphed sound, specified by
+parameters <code>p4</code> and <code>p5</code>, respectively. The onset
+in the morphed sounds is purely clarinet partial data, and the decay is
+purely flute data. The clarinet partials are shifted in pitch to match the
+pitch of the flute tone (D above middle C).
+<p>
+
+The instrument in Morphing Example 2 performs a sound morph between a
+flutter-tongued trombone tone and a cat's meow using reassigned
+bandwidth-enhanced partials stored in "trombone.sdif" and "meow.sdif."
+The data in these SDIF files have been channelized and distilled to
+establish correspondences between partials.
+<p>
+The two sets of partials are imported and stored in memory locations
+labeled 1 and 2, respectively. Both of the original sounds have four
+notes, and the morph is performed over the second note in each sound
+(from .75 to 1.2 seconds in the flutter-tongued trombone tone, and
+from 1.7 to 2.2 seconds in the cat's meow). The different time index
+functions, <code>kttbn</code> and <code></code>ktmeow, align those
+segments of the source and target partial sets with the specified
+morph start, morph end, and overall duration parameters. Two different
+morphing functions are used, so that the partial ammplitudes and
+bandwidth coefficients morph quickly from the trombone values to the
+cat's-meow values, and the frequencies make a more gradual transition.
+The morphed partials are stored in a memory location labeled 3 and
+rendered by the subsequent <code>lorisplay</code> instruction. They
+could also have been used as a source for another morph in a three-way
+morphing instrument. The following score can be used to test both of
+the instruments described above.
+<p>
+<pre>
+	; play instr 1
+	;     strt   dur   onset   decay
+	i 1    0      3     .25     .15
+	i 1    +      1     .10     .10
+	i 1    +      6    1.      1.
+	s
+	
+	; play instr 2
+	;     strt   dur  morph_start   morph_end
+	i 2    0      4     .75           2.75
+	
+	e
+</pre>
+<p>
+
+<h3>Author</h3>
+<p>Kelly Fitz<br>
+WSU, Pullman<br>
+2002<br>
+email:<a href="mailto:loris@cerlsoundgroup.org">loris@cerlsoundgroup.org</a></p>
+
+<p>
+Last update: 11 June 2002
+</p>
+
+<hr size="2" color="#A9A9A9" noshade>
+<!--
+[[table  align="right" cellpadding="1" cellspacing="1" border="0"]]
+	[[tr]]
+		[[td width="45" align="right"]]
+			[[a href="../manual2.htm#contents" target="_parent"]][[img src="../toc.gif" width="38" height="18" alt="Use Non-Frames Version" border="0"]][[/a]]
+		[[/td]]
+		[[td width="10"]][[/td]]
+		[[td width="45" align="right"]]
+			[[a href="guiro.htm"]][[img src="../prev.gif" width="38" height="18" alt="Previous Page" border="0"]][[/a]]
+		[[/td]]
+		[[td width="45" align="right"]]
+			[[a href="pvread.htm"]][[img src="../next.gif" width="38" height="18" alt="Next Page" border="0"]][[/a]]
+		[[/td]]
+	[[/tr]]
+[[/table]]
+-->
+Signal Generators: Bandwidth-Enhanced Additive Resynthesis, Sound Morphing
+</body>
+
+</html>
